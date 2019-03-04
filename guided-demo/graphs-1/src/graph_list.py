@@ -21,3 +21,4 @@ class Graph:
     # pylint: disable=too-few-public-methods
     def __init__(self):
         self.vertices = set()
+        
