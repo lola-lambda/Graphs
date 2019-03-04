@@ -31,7 +31,7 @@ class Graph:
     """The graph itself is simply a set of vertices."""
     def __init__(self):
         self.vertices = {}
-        
+
     def add_vertex(self, vertex_id):
         self.vertices[vertex_id] = set()
 
@@ -100,7 +100,20 @@ class Graph:
                 if child:
                     self.dft_recursive(starting_id, child, s, visited)
         
-        
+    def bfs(self, starting_id, destination_id):
+        q = Queue()
+        visited = set()
+        q.enqueue(starting_id)
+        while q.size > 0:
+            next = q.dequeue()
+            if next is destination_id:
+                visited.add(next)
+                return visited
+            elif next not in visited:
+                visited.add(next)
+                for child in self.vertices[next]:
+                    q.enqueue(child)
+        return 'Destination vertex could not be reached from starting point'
 
 graph = Graph()
 graph.add_vertex('0')
@@ -114,3 +127,4 @@ print(graph.vertices)
 print('bft', graph.bft('0'))
 print('iterative dft', graph.dft('0'))
 print('recursive dft', graph.dft_recursive('0'))
+print('bfs', graph.bfs('3', '1'))
