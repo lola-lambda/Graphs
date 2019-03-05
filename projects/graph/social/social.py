@@ -74,9 +74,7 @@ class SocialGraph:
         total = numUsers * avgFriendships
         friendships = friendships[:total]
         for friendship in friendships:
-            friend1 = friendship[0]
-            friend2 = friendship[1]
-            self.friendships[friend1].add(friend2)
+            self.addFriendship(friendship[0], friendship[1])
     
     def getAllSocialPaths(self, userID):
         """
