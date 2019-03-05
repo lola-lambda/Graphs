@@ -97,27 +97,42 @@ class Graph:
         
     def bfs(self, starting, destination):
         q = Queue()
-        visited = set()
         q.enqueue(starting)
-        while q.size > 0:
-            next = q.dequeue()
-            if next is destination:
-                visited.add(next)
-                print(visited)
-                return
-            elif next not in visited:
-                visited.add(next)
-                for child in self.vertices[next]:
-                    q.enqueue(child)
+        path = { starting: [starting] }
 
-    def dfs(self, current, destination, visited=set()):
-        visited.add(current)
+        while q.size > 0:
+            current = q.dequeue()
+            for child in self.vertices[current]:
+                if child not in path:
+                    q.enqueue(child)
+                    path[child] = list(path[current])
+                    path[child].append(child)
+
+                    if child is destination:
+                        print(path[child])
+                        return path[child]
+                
+
+    def dfs(self, start, destination, current=None, next=None, path={}):
+        if start:
+            path[start] = [start]
+            current = start
+            start = None
+        else: 
+            path[next] = list(path[current])
+            path[next].append(next)
+            current = next
         for child in self.vertices[current]:
             if child is destination:
-                visited.add(child)
-                print(visited)
-            elif child not in visited:
-                self.dfs(child, destination, visited)
+                path[child] = list(path[current])
+                path[child].append(child)
+                print(path[child])
+                return path[child]
+            if child not in path:
+                self.dfs(start, destination, current, child, path)
+            
+                
+            
            
 graph = Graph()
 graph.add_vertex('0')
