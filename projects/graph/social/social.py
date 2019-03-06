@@ -98,10 +98,18 @@ class SocialGraph:
                     connected[user].append(user)
         return connected
 
+    def analysis(self,connections):
+        sum = 0
+        for user in connections:
+            sum += len(connections[user])
+        averageDegree = sum/len(connections)
+        averagePercentage = len(connections)/len(self.users) * 100
+        return f"average degree of separation: {averageDegree} \npercentage of total users in extended network: {averagePercentage}%"        
 
 if __name__ == '__main__':
     sg = SocialGraph()
-    sg.populateGraph(10, 2)
+    sg.populateGraph(1000, 5)
     print(sg.friendships)
     connections = sg.getAllSocialPaths(1)
     print(connections)
+    print(sg.analysis(connections))
