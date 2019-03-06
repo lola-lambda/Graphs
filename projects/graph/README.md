@@ -121,7 +121,7 @@ Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social n
     These parameters should yield a total of 1000 friendships (users * average). `addFriendship()` is called once per friendship so it should be called 1000 times in this case.
 
 2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
-    See analysis function for results.
+    See analysis function for results. The function uses the connections data from the getAllSocialPaths results so pass in the particular user to that function before running the analysis.
 
 
 ## 4. Stretch Goal
