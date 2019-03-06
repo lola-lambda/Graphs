@@ -31,9 +31,9 @@ class Graph:
     """The graph itself is simply a set of vertices."""
     def __init__(self):
         self.vertices = {}
-        
-    def add_vertex(self, vertex_id):
-        self.vertices[vertex_id] = set()
+
+    def add_vertex(self, vertex):
+        self.vertices[vertex] = set()
 
     def add_directed_edge(self, v1, v2):
         if v1 in self.vertices and v2 in self.vertices:
@@ -48,10 +48,10 @@ class Graph:
         else:
             raise IndexError("That vertex DNE")
 
-    def bft(self, starting_id):
+    def bft(self, starting):
         q = Queue()
         visited = set()
-        q.enqueue(starting_id)
+        q.enqueue(starting)
         while q.size > 0:
             next = q.dequeue()
             if next not in visited:
@@ -68,10 +68,10 @@ class Graph:
                 # add it to visited vertex set
                 # enqueue the children
     
-    def dft(self, starting_id):
+    def dft(self, starting):
         s = Stack()
         visited = set()
-        s.push(starting_id)
+        s.push(starting)
         while len(s.storage) > 0:
             next = s.pop()
             if next not in visited:
@@ -88,20 +88,52 @@ class Graph:
                 # add it to visited vertex set
                 # add the children to the stack
 
-    def dft_recursive(self, starting_id, current=None, s=Stack(), visited=set()):
-        if current is None:
-            current = starting_id
-        s.push(current)
-        next = s.pop()
-        if next not in visited:
-            visited.add(next)
-            print(next)
-            for child in self.vertices[next]:
-                if child:
-                    self.dft_recursive(starting_id, child, s, visited)
+    def dft_recursive(self, current, visited=set()):
+        visited.add(current)
+        print(current)
+        for child in self.vertices[current]:
+            if child not in visited:
+                self.dft_recursive(child, visited)
         
-        
+    def bfs(self, starting, destination):
+        q = Queue()
+        q.enqueue(starting)
+        path = { starting: [starting] }
 
+        while q.size > 0:
+            current = q.dequeue()
+            for child in self.vertices[current]:
+                if child not in path:
+                    q.enqueue(child)
+                    path[child] = list(path[current])
+                    path[child].append(child)
+
+                    if child is destination:
+                        print(path[child])
+                        return path[child]
+                
+
+    def dfs(self, start, destination, current=None, next=None, path={}):
+        if start:
+            path[start] = [start]
+            current = start
+            start = None
+        else: 
+            path[next] = list(path[current])
+            path[next].append(next)
+            current = next
+        for child in self.vertices[current]:
+            if child is destination:
+                path[child] = list(path[current])
+                path[child].append(child)
+                print(path[child])
+                return path[child]
+            if child not in path:
+                self.dfs(start, destination, current, child, path)
+            
+                
+            
+           
 graph = Graph()
 graph.add_vertex('0')
 graph.add_vertex('1')
@@ -114,3 +146,5 @@ print(graph.vertices)
 print('bft', graph.bft('0'))
 print('iterative dft', graph.dft('0'))
 print('recursive dft', graph.dft_recursive('0'))
+print('bfs', graph.bfs('3', '1'))
+print('dfs', graph.dfs('3', '1'))
