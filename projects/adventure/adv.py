@@ -4,12 +4,7 @@ from world import World
 
 import random
 import sys
-import pprint
-import json
-
-pp = pprint.PrettyPrinter(indent=4)
-
-sys.setrecursionlimit(10000)
+import statistics
 
 # Load world
 world = World()
@@ -73,7 +68,6 @@ class Queue:
 inverse = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
 
 def depth_first(previous, graph, traversalPath):
-
     current = player.currentRoom.id
     exits = player.currentRoom.getExits()
     if current not in graph:
@@ -83,11 +77,8 @@ def depth_first(previous, graph, traversalPath):
     if previous is not None:
         last_move = traversalPath[-1]
         graph[previous][last_move] = current
-        print('prv', graph[previous][last_move])
         graph[current][inverse[last_move]] = previous   
-        print('crt', graph[current][inverse[last_move]])
     if '?' in graph[current].values():
-        # direction = [x for x in graph[current].keys() if graph[current][x] is '?'][0]
         directions = []
         for cardinal in graph[current].keys():
             if graph[current][cardinal] is "?":
@@ -95,10 +86,6 @@ def depth_first(previous, graph, traversalPath):
         if len(directions) is not 0:
             random.shuffle(directions)
             direction = directions[0]
-
-            print('im movin!!', current, direction)
-            print(graph[current])
-            print(graph[current][direction])
             traversalPath.append(direction)
             player.travel(direction)
             depth_first(current, graph, traversalPath)
@@ -135,45 +122,43 @@ def adventure():
         path = breadth_first(current, graph, traversalPath)
 
         if path is not None:
-            print(path)
-            # del path[0]
             current = player.currentRoom.id
             for direction in graph[current]:
                 for step in path:
                     if graph[current][direction] is step:
                         traversalPath.append(direction)
-                        print('botta move', current, step, direction)
                         player.travel(direction)
         else:
-            print(graph)
             return traversalPath
-    # print(json.dumps(graph, sort_keys=True, indent=4, separators=(',', ': ')))
-    # return graph
     return traversalPath
 
 
-# print(len(adventure()))
-# print(adventure())
-traversalPath = adventure()
-print(traversalPath)
-# print("//")
-# print("**", traversalPath, "**")
-# print("//")
+# traversalPath = adventure()
+lens = []
+for i in range(1, 1000):
+    lens.append(len(adventure()))
 
-world.printRooms()
-# TRAVERSAL TEST
-visited_rooms = set()
-player.currentRoom = world.startingRoom
-visited_rooms.add(player.currentRoom)
-for move in traversalPath:
-    player.travel(move)
-    visited_rooms.add(player.currentRoom)
+print(min(lens))
+print("Max", max(lens))
+print("Min", min(lens))
+print("Average", statistics.mean(lens))
+print("Median", statistics.median(lens))
 
-if len(visited_rooms) == len(roomGraph):
-    print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
-else:
-    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-    print(f"{len(roomGraph) - len(visited_rooms)} unvisited rooms")
+
+# world.printRooms()
+# # TRAVERSAL TEST
+# visited_rooms = set()
+# player.currentRoom = world.startingRoom
+# visited_rooms.add(player.currentRoom)
+# for move in traversalPath:
+#     player.travel(move)
+#     visited_rooms.add(player.currentRoom)
+
+# if len(visited_rooms) == len(roomGraph):
+#     print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
+# else:
+#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+#     print(f"{len(roomGraph) - len(visited_rooms)} unvisited rooms")
 
 
 
