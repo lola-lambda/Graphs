@@ -3,6 +3,8 @@ from player import Player
 from world import World
 
 import random
+import sys
+import statistics
 
 # Load world
 world = World()
@@ -18,30 +20,145 @@ roomGraph={494: [(1, 8), {'e': 457}], 492: [(1, 20), {'e': 400}], 493: [(2, 5), 
 world.loadGraph(roomGraph)
 player = Player("Name", world.startingRoom)
 
+# Start by writing an algorithm that picks a random unexplored direction from the player's current room, travels and logs that direction, then loops. This should cause your player to walk a depth-first traversal. When you reach a dead-end (i.e. a room with no unexplored paths), walk back to the nearest room that does contain an unexplored path.
 
+# You can find the path to the shortest unexplored room by using a breadth-first search for a room with a '?' for an exit. If you use the bfs code from the homework, you will need to make a few modifications.
 
+# Instead of searching for a target vertex, you are searching for an exit with a '?' as the value. If an exit has been explored, you can put it in your BFS queue like normal.
+
+# BFS will return the path as a list of room IDs. You will need to convert this to a list of n/s/e/w directions before you can add it to your traversal path.
+
+# You may find the commands player.currentRoom.id, player.currentRoom.getExits() and player.travel(direction) useful.
 
 # FILL THIS IN
-traversalPath = ['n', 's']
+# traversalPath = ['n', 's']
 
 
+# graph = {
+#     0: {'n': 4, 's': 8, 'w': 3, 'e': '?'},
+#     4: {'s': 0},
+#     8: {'n': 0, 'w': 16},
+#     16: {'e': 8},
+#     3: {'n': '?', 'w': '?', 'e': 0}
+# }
+
+#  while map has unexplored rooms
+    # for current room
+        # if room doesn't exist, initialize it
+        #  update previous room and current room inverse
+    # if there is an unexplored room, travel to it
+    # else bfs to nearest room with unexplored exit, then go there and make that the current room
+
+class Queue:
+  def __init__(self):
+    self.size = 0
+    self.storage = []
+
+  def enqueue(self, item):
+    self.storage.insert(0, item)
+    self.size += 1
+
+  def dequeue(self):
+    if self.size > 0:
+      self.size -= 1
+      return self.storage.pop()
+    else:
+      return None
+
+inverse = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
+
+def depth_first(previous, graph, traversalPath):
+    current = player.currentRoom.id
+    exits = player.currentRoom.getExits()
+    if current not in graph:
+        graph[current] = {}
+        for choice in exits:
+            graph[current][choice] = '?'
+    if previous is not None:
+        last_move = traversalPath[-1]
+        graph[previous][last_move] = current
+        graph[current][inverse[last_move]] = previous   
+    if '?' in graph[current].values():
+        directions = []
+        for cardinal in graph[current].keys():
+            if graph[current][cardinal] is "?":
+                directions.append(cardinal)
+        if len(directions) is not 0:
+            random.shuffle(directions)
+            direction = directions[0]
+            traversalPath.append(direction)
+            player.travel(direction)
+            depth_first(current, graph, traversalPath)
+    else:
+        return graph
+        
+
+def breadth_first(starting, graph, traversalPath):
+    q = Queue()
+    q.enqueue([starting])
+    visited = set()
+
+    while q.size > 0:
+        path = q.dequeue()
+        current = path[-1]
+        if current not in visited:
+            visited.add(current)
+            if '?' in graph[current].values():
+                return path
+            for option in graph[current].values():
+                next_path = list(path)
+                next_path.append(option)
+                q.enqueue(next_path)
+    return None
+
+def adventure():
+    traversalPath = []
+    graph = {}
+    previous = None
+
+    while len(graph) < 500:
+        depth_first(previous, graph, traversalPath)
+        current = player.currentRoom.id
+        path = breadth_first(current, graph, traversalPath)
+
+        if path is not None:
+            current = player.currentRoom.id
+            for direction in graph[current]:
+                for step in path:
+                    if graph[current][direction] is step:
+                        traversalPath.append(direction)
+                        player.travel(direction)
+        else:
+            return traversalPath
+    return traversalPath
 
 
+# traversalPath = adventure()
+lens = []
+for i in range(1, 1000):
+    lens.append(len(adventure()))
+
+print(min(lens))
+print("Max", max(lens))
+print("Min", min(lens))
+print("Average", statistics.mean(lens))
+print("Median", statistics.median(lens))
 
 
-# TRAVERSAL TEST
-visited_rooms = set()
-player.currentRoom = world.startingRoom
-visited_rooms.add(player.currentRoom)
-for move in traversalPath:
-    player.travel(move)
-    visited_rooms.add(player.currentRoom)
+# world.printRooms()
+# # TRAVERSAL TEST
+# visited_rooms = set()
+# player.currentRoom = world.startingRoom
+# visited_rooms.add(player.currentRoom)
+# for move in traversalPath:
+#     player.travel(move)
+#     visited_rooms.add(player.currentRoom)
 
-if len(visited_rooms) == len(roomGraph):
-    print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
-else:
-    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-    print(f"{len(roomGraph) - len(visited_rooms)} unvisited rooms")
+# if len(visited_rooms) == len(roomGraph):
+#     print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
+# else:
+#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+#     print(f"{len(roomGraph) - len(visited_rooms)} unvisited rooms")
 
 
 
